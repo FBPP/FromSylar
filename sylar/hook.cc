@@ -97,12 +97,14 @@ template<typename OriginFun, typename ... Args>
 static ssize_t do_io(int fd, OriginFun fun, const char *hook_fun_name, 
 				uint32_t event, int timeout_so, Args&&... args)
 {
-	if(!sylar::Is_hook_enable())
+	if(!sylar::t_hook_enable)
 		return fun(fd, std::forward<Args>(args)...);
 
 	sylar::FdCtx::ptr ctx = sylar::FdMgr::GetInstance()->get(fd);
-	if(!ctx)
-		return fun(fd, std::forward<Args>(args)...);
+	if(!ctx){
+			//SYLAR_LOG_DEBUG(g_logger) << hook_fun_name << "ctx is empty";
+			return fun(fd, std::forward<Args>(args)...);
+		}
 	if(ctx->isClose()){
 			errno = EBADF;
 			return -1;
@@ -116,17 +118,17 @@ static ssize_t do_io(int fd, OriginFun fun, const char *hook_fun_name,
 retry:	
 	ssize_t n = fun(fd, std::forward<Args>(args)...);
 
-	SYLAR_LOG_DEBUG(g_logger) << "do io"  << hook_fun_name << " n = " << n;
+	//SYLAR_LOG_DEBUG(g_logger) << "do io "  << hook_fun_name << " n = " << n;
 	//中断
 	while(n == -1 && errno == EINTR)
 		{
-			SYLAR_LOG_DEBUG(g_logger) << "errno == EINTR";
+			//SYLAR_LOG_DEBUG(g_logger) << "errno == EINTR";
 			n = fun(fd, std::forward<Args>(args)...);
 		}
 	//缓冲区满
 	if(n == -1 && errno == EAGAIN)
 		{
-			SYLAR_LOG_DEBUG(g_logger) << "errno == EAGAIN";
+			//SYLAR_LOG_DEBUG(g_logger) << "errno == EAGAIN";
 			sylar::IOManager *iom = sylar::IOManager::GetThis();
 			sylar::Timer::ptr timer;
 			std::weak_ptr<timer_info> winfo(tinfo);
@@ -137,6 +139,7 @@ retry:
 					if(!t || t->cancelled)
 						return;
 					t->cancelled = ETIMEDOUT;
+					SYLAR_LOG_DEBUG(g_logger) << "errno = ETIMEDOUT";
 					iom->cancelEvent(fd, (sylar::IOManager::Event)event);
 				}, winfo);
 
@@ -155,7 +158,7 @@ retry:
 						timer->cancel();
 					if(tinfo->cancelled){
 							errno = tinfo->cancelled;
-							SYLAR_LOG_DEBUG(g_logger) << "errno = ETIMEDOUT";
+							//SYLAR_LOG_DEBUG(g_logger) << "errno = ETIMEDOUT";
 							return -1;
 						}
 					
@@ -305,7 +308,7 @@ int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen)
 {
 	int fd = do_io(sockfd, accept_f, "accept", IOManager::READ, SO_RCVTIMEO, addr, addrlen);
 	if(fd >= 0)
-		FdMgr::GetInstance()->get(sockfd, true);
+		FdMgr::GetInstance()->get(fd, true);
 	return fd;
 }
 

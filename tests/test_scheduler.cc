@@ -1,4 +1,5 @@
 #include "../sylar/sylar.h"
+#include "../sylar/hook.h"
 
 sylar::Logger::ptr g_logger = SYLAR_LOG_ROOT();
 
@@ -9,7 +10,7 @@ void test_fiber()
 	static int s_count = 5;
 	if(--s_count >= 0)
 		sylar::Scheduler::GetThis()->schedule(&test_fiber, sylar::GetThreadId());
-	sleep(1);
+	sleep_f(1);
 			
 }
 

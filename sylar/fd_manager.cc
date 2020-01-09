@@ -1,9 +1,12 @@
 #include "fd_manager.h"
 #include "hook.h"
+#include "log.h"
 
 namespace sylar
 {
 
+static Logger::ptr g_logger = SYLAR_LOG_ROOT();
+	
 FdCtx::FdCtx(int fd)
 	:m_isInit(false)
 	,m_isSocket(false)
@@ -76,17 +79,28 @@ FdManager::FdManager()
 
 FdCtx::ptr FdManager::get(int fd, bool auto_create)
 {
-	RWMutexType::ReadLock lock(m_mutex);
-	if(fd >= (int)m_datas.size())
-		return nullptr;
-	else if(m_datas[fd] || !auto_create)
-		return m_datas[fd];
-	lock.unlock();
+	 if(fd == -1) {
+        return nullptr;
+    }
+    RWMutexType::ReadLock lock(m_mutex);
+    if((int)m_datas.size() <= fd) {
+        if(auto_create == false) {
+            return nullptr;
+        }
+    } else {
+        if(m_datas[fd] || !auto_create) {
+            return m_datas[fd];
+        }
+    }
+    lock.unlock();
 
-	RWMutexType::WriteLock lock2(m_mutex);
-	FdCtx::ptr ctx(new FdCtx(fd));
-	m_datas[fd] = ctx;
-	return ctx;
+    RWMutexType::WriteLock lock2(m_mutex);
+    FdCtx::ptr ctx(new FdCtx(fd));
+    if(fd >= (int)m_datas.size()) {
+        m_datas.resize(fd * 1.5);
+    }
+    m_datas[fd] = ctx;
+    return ctx;
 }
 
 void FdManager::del(int fd)

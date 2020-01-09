@@ -108,7 +108,7 @@ void Socket::setRecvTimeout(int64_t v)
 
 bool Socket::getOption(int level, int option, void *result, size_t *len)
 {
-	int rt = getsockopt(m_sock, level, option, (char *)result, (socklen_t *)len);
+	int rt = getsockopt(m_sock, level, option, result, (socklen_t *)len);
 	if(rt){
 			SYLAR_LOG_DEBUG(g_logger) << "getOption sock=" << m_sock << " level=" << level
 					<< " option=" << option << " errno=" << errno << " errstr=" << strerror(errno);
@@ -365,6 +365,7 @@ Address::ptr Socket::getRemoteAddress()
 			UnixAddress::ptr addr = std::dynamic_pointer_cast<UnixAddress>(result);
 			addr->setAddrLen(addrlen);
 		}
+	//SYLAR_LOG_DEBUG(g_logger) << *result;
 	ms_remoteAddress = result;
 	return ms_remoteAddress;
 }
@@ -430,7 +431,7 @@ std::ostream & Socket::dump(std::ostream &os) const
 	if(ms_localAddress)
 		os << " local_address=" << ms_localAddress->toString();
 	if(ms_remoteAddress)
-		os << " remoteAddress=" << ms_localAddress->toString();
+		os << " remoteAddress=" << ms_remoteAddress->toString();
 	os << "]";
 	return os;
 }
@@ -458,7 +459,10 @@ bool Socket::cancelAll()
 //private:
 bool Socket::init(int sock)
 {
+	//SYLAR_LOG_DEBUG(g_logger) << sock;
 	FdCtx::ptr s_ctx = FdMgr::GetInstance()->get(sock);
+	if(!s_ctx)
+		SYLAR_LOG_DEBUG(g_logger) << "s_ctx is empty";
 	if(s_ctx && s_ctx->isSocket() && !s_ctx->isClose())
 		{
 			m_sock = sock;
@@ -490,6 +494,12 @@ void Socket::newSock()
 		SYLAR_LOG_ERROR(g_logger) << "socket (" << m_family
 			<< ", " << m_type << ", " << m_protocol << ") errno="
 			<< errno << " errstr=" << strerror(errno);
+}
+
+
+std::ostream &operator<<(std::ostream &os, const Socket &sock)
+{
+	return sock.dump(os);	
 }
 
 

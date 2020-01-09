@@ -132,7 +132,7 @@ void Scheduler::run()
 		{
 			ft.reset();
 			bool tickle_me = false;
-			bool is_active = false;	
+			bool is_active = false;
 			{
 				MutexType::Lock lock(m_mutex);
 				auto it = m_fibers.begin();
@@ -237,7 +237,6 @@ void Scheduler::idle()
 	while(!stopping()){
 			SYLAR_LOG_INFO(g_logger) << "idle";
 			Fiber::YieldToHold();
-			sleep(1);
 		}
 	
 }

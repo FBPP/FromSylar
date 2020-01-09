@@ -123,6 +123,8 @@ private:
 	Address::ptr ms_remoteAddress;
 };
 
+
+std::ostream &operator<<(std::ostream &os, const Socket &sock);
 }
 
 #endif

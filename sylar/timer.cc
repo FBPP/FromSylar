@@ -169,7 +169,7 @@ bool TimerManager::hasTimer()
 void TimerManager::addTimer(Timer::ptr val, RWMutexType::WriteLock &lock)
 {
 	auto it = m_timers.insert(val).first;
-	bool at_front = it == m_timers.begin() && !m_tickled;
+	bool at_front = (it == m_timers.begin()) && !m_tickled;
 	if(at_front)
 		m_tickled = true;
 	lock.unlock();

@@ -35,7 +35,7 @@ void IOManager::FdContext::resetContext(EventContext &ctx)
 
 void IOManager::FdContext::triggerEvent(Event event)
 {
-	SYLAR_LOG_DEBUG(g_logger) << "triggerEvent";
+	//SYLAR_LOG_DEBUG(g_logger) << "triggerEvent";
 	SYLAR_ASSERT(events & event);
 	events = (Event)(events & ~event);
 	EventContext &ctx = getContext(event);

@@ -1,4 +1,0 @@
-/home/pengpeng/windows_shared/sylar/cmake/CMakeFiles/rebuild_cache.dir
-/home/pengpeng/windows_shared/sylar/cmake/CMakeFiles/edit_cache.dir
-/home/pengpeng/windows_shared/sylar/cmake/CMakeFiles/sylar.dir
-/home/pengpeng/windows_shared/sylar/cmake/CMakeFiles/tests.dir

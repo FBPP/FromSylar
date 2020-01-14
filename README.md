@@ -40,7 +40,7 @@ LexicalCast;
 //容器片特化, 目前支持vector
 //list, set, map, unordered_map, unordered_set
 ```
-自定义类型必须实现 sylar::LexicalCast,片特化
+自定义类型必须实现 sylar::LexicalCast,偏特化
 实现后,自定义类型可以和以上指定的容器一起使用
 
 配置的事件机制

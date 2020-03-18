@@ -1,5 +1,3 @@
-转载: https://www.bilibili.com/video/av53602631
-
 ## 项目环境
 bin --输出二进制
 build --中间生成路径
@@ -214,7 +212,3 @@ HttpServer : TcpServer
     ServletDispatch
 ```
 http调试工具, Postman
-## 分布式协议库
-
-
-## 用框架写一个推荐系统
